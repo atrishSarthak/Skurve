@@ -94,8 +94,11 @@ export default function LoginPage() {
                                     className="text-sm">
                                     Password
                                 </Label>
-                                <Button variant="link" size="sm" render={<Link href="#" className="link intent-info variant-ghost text-sm" />} nativeButton={false}>Forgot your Password ?
-                                                                    </Button>
+                                <Button variant="link" size="sm" asChild>
+                                    <Link href="#" className="link intent-info variant-ghost text-sm">
+                                        Forgot your Password ?
+                                    </Link>
+                                </Button>
                             </div>
                             <Input
                                 type="password"
@@ -113,7 +116,9 @@ export default function LoginPage() {
                 <div className="bg-muted rounded-(--radius) border p-3">
                     <p className="text-accent-foreground text-center text-sm">
                         Don't have an account ?
-                        <Button variant="link" className="px-2" render={<Link href="#" />} nativeButton={false}>Create account</Button>
+                        <Button variant="link" className="px-2" asChild>
+                            <Link href="#">Create account</Link>
+                        </Button>
                     </p>
                 </div>
             </form>

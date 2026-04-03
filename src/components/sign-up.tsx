@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import Link from 'next/link'
 
-export default function LoginPage() {
+export default function SignUpPage() {
     return (
         <section className="flex min-h-screen bg-zinc-50 px-4 py-16 md:py-32 dark:bg-transparent">
             <form
@@ -138,7 +138,9 @@ export default function LoginPage() {
                 <div className="bg-muted rounded-(--radius) border p-3">
                     <p className="text-accent-foreground text-center text-sm">
                         Have an account ?
-                        <Button variant="link" className="px-2" render={<Link href="#" />} nativeButton={false}>Sign In</Button>
+                        <Button variant="link" className="px-2" asChild>
+                            <Link href="#">Sign In</Link>
+                        </Button>
                     </p>
                 </div>
             </form>
