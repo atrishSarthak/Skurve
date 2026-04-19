@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { useAuth } from '@/hooks/user-auth'
+import { useAuth } from '@/hooks/use-auth'
 import { Loader2 } from 'lucide-react'
 import Google from '@/components/buttons/oauth/google'
 import Link from 'next/link'

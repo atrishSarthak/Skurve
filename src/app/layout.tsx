@@ -26,7 +26,7 @@ export default async function RootLayout({
 
   return (
     <ConvexAuthNextjsServerProvider>
-      <html lang="en" className="dark" suppressHydrationWarning>
+      <html lang="en" className="bg-background" suppressHydrationWarning>
         <body className="antialiased">
           <ConvexClientProvider>
             <ThemeProvider
