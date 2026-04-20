@@ -25,13 +25,13 @@ const ShapeRenderer = ({
     ) => void
 }) => {
     switch (shape.type) {
-        // case 'frame':
-        //     return (
-        //         <Frame
-        //             shape={shape}
-        //             toggleInspiration={toggleInspiration}
-        //         />
-        //     )
+        case 'frame':
+            return (
+                <Frame
+                    shape={shape}
+                    toggleInspiration={toggleInspiration}
+                />
+            )
 
         case 'rect':
             return <Rectangle shape={shape} />

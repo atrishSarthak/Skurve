@@ -11,6 +11,7 @@ import { LinePreview } from './shapes/line/preview'
 import { FreeDrawStrokePreview } from './shapes/stroke/preview'
 import { ArrowPreview } from './shapes/arrow/preview'
 import { SelectionOverlay } from './shapes/selection'
+import { HoverOverlay } from './shapes/hover-overlay'
 
 type Props = {}
 
@@ -27,12 +28,14 @@ const InfiniteCanvas = (props: Props) => {
         attachCanvasRef,
         getDraftShape,
         getFreeDrawPoints,
+        getHoveredShapeId,
         isSidebarOpen,
         hasSelectedText,
     } = useInfiniteCanvas()
 
     const draftShape = getDraftShape()
     const freeDrawPoints = getFreeDrawPoints()
+    const hoveredShapeId = getHoveredShapeId()
 
     return (
         <>
@@ -98,6 +101,12 @@ const InfiniteCanvas = (props: Props) => {
                             isSelected={!!selectedShapes[shape.id]}
                         />
                     ))}
+
+                    {/* Hover highlight — only when select tool is active and shape is not already selected */}
+                    {currentTool === 'select' && hoveredShapeId && !selectedShapes[hoveredShapeId] && (() => {
+                        const shape = shapes.find((s) => s.id === hoveredShapeId)
+                        return shape ? <HoverOverlay key={`hover-${shape.id}`} shape={shape} /> : null
+                    })()}
 
                     {draftShape && draftShape.type === 'frame' && (
                         <FramePreview

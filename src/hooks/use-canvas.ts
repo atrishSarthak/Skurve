@@ -1,6 +1,7 @@
-import { addArrow, addEllipse, addFrame, addFreeDrawShape, addLine, addRect, addText, clearSelection, removeShape, selectShape, setTool, Shape, Tool, updateShape } from '@/redux/slice/shapes'
+import { downloadBlob, generateFrameSnapshot } from '@/lib/frame-snapshot'
+import { addArrow, addEllipse, addFrame, addFreeDrawShape, addLine, addRect, addText, clearSelection, FrameShape, removeShape, selectShape, setTool, Shape, Tool, updateShape } from '@/redux/slice/shapes'
 import { handToolDisable, handToolEnable, panEnd, panMove, panStart, Point, screenToWorld, wheelPan, wheelZoom } from '@/redux/slice/viewport'
-import { AppDispatch, useAppSelector } from '@/redux/store'
+import { AppDispatch, useAppDispatch, useAppSelector } from '@/redux/store'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
@@ -74,6 +75,7 @@ export const useInfiniteCanvas = () => {
     const isErasingRef = useRef(false)
     const erasedShapesRef = useRef<Set<string>>(new Set())
     const isResizingRef = useRef(false)
+    const hoveredShapeIdRef = useRef<string | null>(null)
     const resizeDataRef = useRef<{
         shapeId: string
         corner: string
@@ -401,6 +403,27 @@ export const useInfiniteCanvas = () => {
         if (viewport.mode === 'panning' || viewport.mode === 'shiftPanning') {
             schedulePanMove(local)
             return
+        }
+
+        // Hover highlight: when select tool is idle (not dragging/moving), track which shape is under cursor
+        if (
+            currentTool === 'select' &&
+            !isMovingRef.current &&
+            !isDrawingRef.current &&
+            viewport.mode === 'idle'
+        ) {
+            const hitShape = getShapeAtPoint(world)
+            const newHoveredId = hitShape ? hitShape.id : null
+            if (hoveredShapeIdRef.current !== newHoveredId) {
+                hoveredShapeIdRef.current = newHoveredId
+                requestRender()
+            }
+        } else if (currentTool !== 'select') {
+            // Clear hover when switching away from select tool
+            if (hoveredShapeIdRef.current !== null) {
+                hoveredShapeIdRef.current = null
+                requestRender()
+            }
         }
 
         if (isErasingRef.current && currentTool === 'eraser') {
@@ -845,6 +868,8 @@ export const useInfiniteCanvas = () => {
     const getFreeDrawPoints = (): ReadonlyArray<Point> =>
         freeDrawPointsRef.current
 
+    const getHoveredShapeId = (): string | null => hoveredShapeIdRef.current
+
     return {
         viewport,
         shapes: shapeList,
@@ -860,8 +885,48 @@ export const useInfiniteCanvas = () => {
         selectTool,
         getDraftShape,
         getFreeDrawPoints,
+        getHoveredShapeId,
         isSidebarOpen,
         hasSelectedText,
         setIsSidebarOpen,
+    }
+}
+
+
+
+export const useFrame = (shape: FrameShape) => {
+    const dispatch = useAppDispatch()
+    const [isGenerating, setIsGenerating] = useState(false)
+
+    const allShapes = useAppSelector((state) =>
+        Object.values(state.shapes.shapes?.entities || {}).filter(
+            (shape): shape is Shape => shape !== undefined
+        )
+    )
+
+    const handleGenerateDesign = async () => {
+        try {
+            setIsGenerating(true)
+
+            const snapshot = await generateFrameSnapshot(shape, allShapes)
+
+            downloadBlob(
+                snapshot,
+                `frame-${shape.frameNumber}-snapshot.png`
+            )
+
+            const formData = new FormData()
+            formData.append('image', snapshot, `frame-${shape.frameNumber}.png`)
+            formData.append('frameNumber', shape.frameNumber.toString())
+
+            const urlParams = new URLSearchParams(window.location.search)
+            const projectId = urlParams.get('project')
+
+        } catch (error) { }
+    }
+
+    return {
+        isGenerating,
+        handleGenerateDesign,
     }
 }
